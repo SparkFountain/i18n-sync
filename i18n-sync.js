@@ -49,24 +49,14 @@ const fontStyle = {
   bold: '\033[1m',
 };
 
-function readFiles(dirPath, onFileContent, onError) {
-  fs.readdir(dirPath, (error, filenames) => {
-    if (error) {
-      onError(error);
-      return;
-    }
+// combine strategy
+function combineStrategy() {}
 
-    filenames.forEach((fileName) => {
-      fs.readFile(`${dirPath}/${fileName}`, 'utf-8', (error, content) => {
-        if (error) {
-          onError(error);
-          return;
-        }
-        onFileContent(fileName, content);
-      });
-    });
-  });
-}
+// reduce strategy
+function reduceStrategy() {}
+
+// fit to language strategy
+function fitToLanguageStrategy() {}
 
 async function translateAutomatically(
   translateString,
@@ -283,43 +273,53 @@ console.log('[STRATEGY]', strategy);
 console.log('[PLACEHOLDER]', placeholder);
 console.log('[AUTO TRANSLATE]', autoTranslate);
 console.log('[OUTPUT DIR NAME]', outputDirName);
+console.log();
 
 let data = {};
-readFiles(
-  `./${dirPath}`,
-  (fileName, content) => {
-    console.log('CONTENT:', content);
-    data[fileName] = content;
-  },
-  (error) => {
-    throw error;
+
+// get all JSON files from i18n directory
+fs.readdir(`./${dirPath}`, (error, fileNames) => {
+  if (error) {
+    exitWithError(error);
   }
-);
 
-// DEBUG: log all file contents
-// console.log("FILE CONTENTS", data);
+  const totalFiles = fileNames.length;
+  let readFiles = 0;
 
-// check if output directory already exists
-if (!fs.existsSync('./output')) {
-  // output directory does not exist, so create it
-  fs.mkdirSync('./output');
-} else {
-  // check for old files and remove them
-  readFiles(
-    './output',
-    (fileName, content) => {
-      fs.rmSync('./output/fileName', { force: true });
-    },
-    (error) => {
-      throw error;
-    }
-  );
-}
+  fileNames.forEach((fileName) => {
+    fs.readFile(`${dirPath}/${fileName}`, 'utf-8', (error, properties) => {
+      if (error) {
+        exitWithError(error);
+      }
 
-// translate automatically
-// TODO: only trigger if command line parameter is set
-// translateAutomatically(
-//   "The quick brown fox jumps over the lazy cat",
-//   "en",
-//   "de"
-// );
+      readFiles++;
+
+      // format empty files to fit JSON standard
+      if (properties.trim() === '') {
+        properties = '{}';
+      }
+
+      data[fileName] = JSON.parse(properties);
+
+      if (readFiles === totalFiles) {
+        console.log('[ALL PROPERTIES]', data);
+
+        if (fs.existsSync(`./${outputDirName}`)) {
+          // output directory already exists, so delete it
+          fs.rmSync(`./${outputDirName}`, { recursive: true });
+        }
+
+        // create output directory
+        fs.mkdirSync(`./${outputDirName}`);
+
+        // translate automatically
+        // TODO: only trigger if command line parameter is set
+        // translateAutomatically(
+        //   "The quick brown fox jumps over the lazy cat",
+        //   "en",
+        //   "de"
+        // );
+      }
+    });
+  });
+});
