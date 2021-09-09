@@ -1,6 +1,53 @@
 // import libraries
-const fs = require("fs");
-const https = require("https");
+const fs = require('fs');
+const https = require('https');
+
+// define command line colors
+const color = {
+  fg: {
+    default: '\x1b[0m',
+    black: '\x1b[30m',
+    red: '\x1b[31m',
+    green: '\x1b[32m',
+    yellow: '\x1b[33m',
+    blue: '\x1b[34m',
+    magenta: '\x1b[35m',
+    cyan: '\x1b[36m',
+    white: '\x1b[37m',
+    gray: '\x1b[90m',
+    brightRed: '\x1b[91m',
+    brightGreen: '\x1b[92m',
+    brightYellow: '\x1b[93m',
+    brightBlue: '\x1b[94m',
+    brightMagenta: '\x1b[95m',
+    brightCyan: '\x1b[96m',
+    brightWhite: '\x1b[97m',
+  },
+  bg: {
+    black: '\x1b[40m',
+    red: '\x1b[41m',
+    green: '\x1b[42m',
+    yellow: '\x1b[43m',
+    blue: '\x1b[44m',
+    magenta: '\x1b[45m',
+    cyan: '\x1b[46m',
+    white: '\x1b[47m',
+    gray: '\x1b[100m',
+    brightRed: '\x1b[101m',
+    brightGreen: '\x1b[102m',
+    brightYellow: '\x1b[103m',
+    brightBlue: '\x1b[104m',
+    brightMagenta: '\x1b[105m',
+    brightCyan: '\x1b[106m',
+    brightWhite: '\x1b[107m',
+  },
+};
+
+// define bold and default command line styles
+const fontStyle = {
+  default: '\033[0m',
+  bold: '\033[1m',
+};
 
 function readFiles(dirPath, onFileContent, onError) {
   fs.readdir(dirPath, (error, filenames) => {
@@ -10,7 +57,7 @@ function readFiles(dirPath, onFileContent, onError) {
     }
 
     filenames.forEach((fileName) => {
-      fs.readFile(`${dirPath}/${fileName}`, "utf-8", (error, content) => {
+      fs.readFile(`${dirPath}/${fileName}`, 'utf-8', (error, content) => {
         if (error) {
           onError(error);
           return;
@@ -29,29 +76,29 @@ async function translateAutomatically(
   const data = JSON.stringify({
     q: translateString,
     source: sourceLanguage,
-    target: targetLanguage
+    target: targetLanguage,
   });
 
   const options = {
-    hostname: "translate.argosopentech.com",
+    hostname: 'translate.argosopentech.com',
     port: 443,
-    path: "/translate",
-    method: "POST",
+    path: '/translate',
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      "Content-Length": data.length
-    }
+      'Content-Type': 'application/json',
+      'Content-Length': data.length,
+    },
   };
 
   const req = https.request(options, (res) => {
     console.log(`statusCode: ${res.statusCode}`);
 
-    res.on("data", (d) => {
+    res.on('data', (d) => {
       process.stdout.write(d);
     });
   });
 
-  req.on("error", (error) => {
+  req.on('error', (error) => {
     console.error(error);
   });
 
@@ -60,68 +107,81 @@ async function translateAutomatically(
 }
 
 function howToUse() {
-  console.log("\x1b[35m\x1b[47m");
   console.log(`
   |   |                     |                                 _) _ |   _ )                                          
   |   |   _ \\ \\ \\  \\   /    __|   _ \\     |   |   __|   _ \\    |   |   _ \\   __ \\           __|  |   |  __ \\    __| 
   ___ |  (   | \\ \\  \\ /     |    (   |    |   | \\__ \\   __/    |   |  (   |  |   | _____| \\__ \\  |   |  |   |  (    
  _|  _| \\___/   \\_/\\_/     \\__| \\___/    \\__,_| ____/ \\___|   _|  _| \\___/  _|  _|        ____/ \\__, | _|  _| \\___| 
                                                                                                 ____/               `);
-  console.log("\x1b[0m");
+  console.log(`${color.fg.black}`);
 
-  console.log("\033[1m\n☛ Usage\033[0m\n");
+  console.log(`${fontStyle.bold}\n☛  Usage${fontStyle.default}\n`);
   console.log(
-    "Execute the following command to sync all JSON properties of different language files:\n"
+    `Execute the following command to sync all JSON properties of different language files:\n`
   );
   console.log(
-    "  \x1b[32m> \x1b[0m\x1b[33mnode i18n-sync.js <i18n-directory> [parameters]\x1b[0m\n"
+    `  ${color.fg.green}> ${color.fg.default}${color.fg.yellow}node i18n-sync.js <i18n-directory> [parameters]${color.fg.default}\n`
   );
   console.log(
-    "Replace \x1b[33m<i18n-directory>\x1b[0m with the directory name where your language definitions are saved.\n"
+    `Replace ${color.fg.yellow}<i18n-directory>${color.fg.default} with the directory name where your language definitions are saved.\n`
   );
   console.log(
-    "You can configure the way \x1b[35mi18n-sync\x1b[0m works using (optional) command line parameters.\n\n"
-  );
-
-  console.log("\033[1m☛ Command line parameters\n\033[0m");
-  console.log(
-    "\x1b[33m  -c\x1b[0m                   ➤ Use all properties of all languages."
-  );
-  console.log(
-    "\x1b[33m  -r\x1b[0m                   ➤ Use only properties that exist in all languages."
-  );
-  console.log(
-    "\x1b[33m  -f <language-file>\x1b[0m   ➤ Use all properties of a specific language and omit all other languages' properties."
-  );
-  console.log(
-    '\x1b[33m  -t\x1b[0m                   ➤ Write a "To Do" placeholder string into empty properties.'
-  );
-  console.log(
-    "\x1b[33m  -p\x1b[0m                   ➤ Write a placeholder string into empty properties that uses the name of the current property."
-  );
-  console.log(
-    "\x1b[33m  -i <placeholder>\x1b[0m     ➤ Write the provided placeholder string into empty properties."
-  );
-  console.log(
-    "\x1b[33m  -a\x1b[0m                   ➤ Automatically translates empty property values using LibreTranslate."
-  );
-  console.log(
-    "\x1b[33m  -o <output-dir-name>\x1b[0m ➤ Define a custom output directory name.\n"
+    `You can configure the way ${color.fg.magenta}i18n-sync${color.fg.default} works using (optional) command line parameters.\n\n`
   );
 
   console.log(
-    "\x1b[4mYou can only provide one parameter of each set:\x1b[0m\n"
+    `${fontStyle.bold}☛  Command line parameters\n${fontStyle.default}`
   );
   console.log(
-    "\x1b[32mSTRATEGY:\x1b[0m     EITHER  \x1b[33m-c\x1b[0m  OR  \x1b[33m-r\x1b[0m  OR  \x1b[33m-f <language-file>\x1b[0m"
+    `${color.fg.yellow}  -c${color.fg.default}                   ➤  Use all properties of all languages.`
   );
   console.log(
-    "\x1b[32mPLACEHOLDER:\x1b[0m  EITHER  \x1b[33m-t\x1b[0m  OR  \x1b[33m-p\x1b[0m  OR  \x1b[33m-i <placeholder>\x1b[0m\n"
+    `${color.fg.yellow}  -r${color.fg.default}                   ➤  Use only properties that exist in all languages.`
+  );
+  console.log(
+    '${color.fg.yellow}  -f <language-file>${color.fg.default}   ➤  Use all properties of a specific language and omit all other languages` properties.'
+  );
+  console.log(
+    `${color.fg.yellow}  -t${color.fg.default}                   ➤  Write a "To Do" placeholder string into empty properties.`
+  );
+  console.log(
+    `${color.fg.yellow}  -p${color.fg.default}                   ➤  Write a placeholder string into empty properties that uses the name of the current property.`
+  );
+  console.log(
+    `${color.fg.yellow}  -i <placeholder>${color.fg.default}     ➤  Write the provided placeholder string into empty properties.`
+  );
+  console.log(
+    `${color.fg.yellow}  -a${color.fg.default}                   ➤  Automatically translates empty property values using LibreTranslate.`
+  );
+  console.log(
+    `${color.fg.yellow}  -o <output-dir-name>${color.fg.default} ➤  Define a custom output directory name.\n`
+  );
+
+  console.log(
+    `\x1b[4mYou can only provide one parameter of each set:${color.fg.default}\n`
+  );
+  console.log(
+    `${color.fg.green}STRATEGY:${color.fg.default}     EITHER  ${color.fg.yellow}-c${color.fg.default}  OR  ${color.fg.yellow}-r${color.fg.default}  OR  ${color.fg.yellow}-f <language-file>${color.fg.default}`
+  );
+  console.log(
+    `${color.fg.green}PLACEHOLDER:${color.fg.default}  EITHER  ${color.fg.yellow}-t${color.fg.default}  OR  ${color.fg.yellow}-p${color.fg.default}  OR  ${color.fg.yellow}-i <placeholder>${color.fg.default}\n`
+  );
+}
+
+function exitWithError(message) {
+  console.error(`\n${color.fg.red}${message}${color.fg.default}`);
+  seeHelp();
+  process.exit();
+}
+
+function seeHelp() {
+  console.error(
+    `\n${color.fg.magenta}For help, execute:\n${color.fg.green}> ${color.fg.yellow}node i18n-sync.js -h${color.fg.default}`
   );
 }
 
 // BEGIN I18N SYNCHRONIZATION
-let params = process.argv; // 1st param: "node"; 2nd param: "i18n-sync.js"
+let params = process.argv; // 1st param: 'node'; 2nd param: 'i18n-sync.js'
 
 // check if i18n directory is provided
 if (params === undefined || params.length < 3) {
@@ -129,12 +189,106 @@ if (params === undefined || params.length < 3) {
   process.exit();
 }
 
+// get directory path
 let dirPath = params[2];
+
+// get command line parameters
+let strategy = 'combine';
+let parsedStrategy = false;
+
+let placeholder = 'todo';
+let parsedPlaceholder = false;
+
+let autoTranslate = false;
+
+let outputDirName = 'output';
+
+if (params.length > 3) {
+  let cmdLineParseState = 'parameterName';
+  for (let i = 3; i < params.length; i++) {
+    if (cmdLineParseState === 'parameterName') {
+      // get parameter
+      switch (params[i]) {
+        case '-c':
+          if (parsedStrategy) {
+            exitWithError('You cannot define more than one strategy.');
+          }
+          strategy = 'combine';
+          parsedStrategy = true;
+          break;
+        case '-r':
+          if (parsedStrategy) {
+            exitWithError('You cannot define more than one strategy.');
+          }
+          strategy = 'reduce';
+          parsedStrategy = true;
+          break;
+        case '-f':
+          if (parsedStrategy) {
+            exitWithError('You cannot define more than one strategy.');
+          }
+          cmdLineParseState = 'fitToLanguage';
+          parsedStrategy = true;
+          break;
+        case '-t':
+          if (parsedPlaceholder) {
+            exitWithError('You cannot define more than one placeholder.');
+          }
+          placeholder = 'todo';
+          break;
+        case '-p':
+          if (parsedPlaceholder) {
+            exitWithError('You cannot define more than one placeholder.');
+          }
+          placeholder = 'property';
+          break;
+        case '-i':
+          if (parsedPlaceholder) {
+            exitWithError('You cannot define more than one placeholder.');
+          }
+          cmdLineParseState = 'individualPlaceholder';
+          break;
+        case '-a':
+          autoTranslate = true;
+          break;
+        case '-o':
+          cmdLineParseState = 'outputDirectoryName';
+          break;
+        default:
+          console.error(`Invalid parameter "${params[i]}"`);
+          process.exit();
+      }
+    } else if (cmdLineParseState === 'fitToLanguage') {
+      // parse language file name
+      strategy = params[i];
+      cmdLineParseState = 'parameterName';
+    } else if (cmdLineParseState === 'individualPlaceholder') {
+      // parse individual placeholder string
+      placeholder = params[i];
+      cmdLineParseState = 'parameterName';
+    } else if (cmdLineParseState === 'outputDirectoryName') {
+      // parse output directory name
+      outputDirName = params[i];
+      cmdLineParseState = 'parameterName';
+    }
+  }
+
+  if (cmdLineParseState !== 'parameterName') {
+    exitWithError(`Missing argument for parameter '${cmdLineParseState}'`);
+  }
+}
+
+// TODO: remove debug logs
+console.log('[STRATEGY]', strategy);
+console.log('[PLACEHOLDER]', placeholder);
+console.log('[AUTO TRANSLATE]', autoTranslate);
+console.log('[OUTPUT DIR NAME]', outputDirName);
+
 let data = {};
 readFiles(
   `./${dirPath}`,
   (fileName, content) => {
-    console.log("CONTENT:", content);
+    console.log('CONTENT:', content);
     data[fileName] = content;
   },
   (error) => {
@@ -146,15 +300,15 @@ readFiles(
 // console.log("FILE CONTENTS", data);
 
 // check if output directory already exists
-if (!fs.existsSync("./output")) {
+if (!fs.existsSync('./output')) {
   // output directory does not exist, so create it
-  fs.mkdirSync("./output");
+  fs.mkdirSync('./output');
 } else {
   // check for old files and remove them
   readFiles(
-    "./output",
+    './output',
     (fileName, content) => {
-      fs.rmSync("./output/fileName", { force: true });
+      fs.rmSync('./output/fileName', { force: true });
     },
     (error) => {
       throw error;
