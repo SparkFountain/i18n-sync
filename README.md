@@ -37,14 +37,14 @@ A list of all available configuration options can be found in the following sect
 ### Configuration Options
 | Option                   | Command Line Parameter | Explanation  |
 | ------------------------ | ---------------------- | ------------ |
-| Combine Strategy         | -c                     | Use all properties of all languages.             |
-| Reduce Strategy          | -r                     | Use only properties that exist in all languages. |
-| Fit To Language Strategy | -f <language-file>     | Use all properties of a specific language. Omit all properties of other languages that do not occur in the provided language. |
-| Todo Placeholder         | -t                     | Write a "To Do" placeholder string into empty properties. |
-| Property Placeholder     | -p                     | Write a placeholder string into empty properties that uses the name of the current property. |
-| Individual Placeholder   | -i <placeholder>       | Write the provided placeholder string into empty properties. |
-| Automatic Translation    | -a                     | Automatically translates empty property values. Uses the reference string of the first language where the property is provided. |
-| Output Directory Name    | -o <output-dir-name>   | Define a custom output directory name.
+| Combine Strategy         | -c                       | Use all properties of all languages.             |
+| Reduce Strategy          | -r                       | Use only properties that exist in all languages. |
+| Fit To Language Strategy | -f `<language-file>`     | Use all properties of a specific language. Omit all properties of other languages that do not occur in the provided language. |
+| Todo Placeholder         | -t                       | Write a "To Do" placeholder string into empty properties. |
+| Property Placeholder     | -p                       | Write a placeholder string into empty properties that uses the name of the current property. |
+| Individual Placeholder   | -i `<placeholder>`       | Write the provided placeholder string into empty properties. |
+| Automatic Translation    | -a                       | Automatically translates empty property values. Uses the reference string of the first language where the property is provided. |
+| Output Directory Name    | -o `<output-dir-name>`   | Define a custom output directory name.
 
 ## License
 This tool uses the [MIT license](https://opensource.org/licenses/MIT). You can freely use and modify this software. Further information can be found in the `LICENSE` file.
