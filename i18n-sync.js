@@ -21,7 +21,7 @@ const color = {
     brightBlue: '\x1b[94m',
     brightMagenta: '\x1b[95m',
     brightCyan: '\x1b[96m',
-    brightWhite: '\x1b[97m',
+    brightWhite: '\x1b[97m'
   },
   bg: {
     black: '\x1b[40m',
@@ -39,14 +39,14 @@ const color = {
     brightBlue: '\x1b[104m',
     brightMagenta: '\x1b[105m',
     brightCyan: '\x1b[106m',
-    brightWhite: '\x1b[107m',
-  },
+    brightWhite: '\x1b[107m'
+  }
 };
 
 // define bold and default command line styles
 const fontStyle = {
   default: '\033[0m',
-  bold: '\033[1m',
+  bold: '\033[1m'
 };
 
 // combine strategy
@@ -66,7 +66,7 @@ async function translateAutomatically(
   const data = JSON.stringify({
     q: translateString,
     source: sourceLanguage,
-    target: targetLanguage,
+    target: targetLanguage
   });
 
   const options = {
@@ -76,8 +76,8 @@ async function translateAutomatically(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Content-Length': data.length,
-    },
+      'Content-Length': data.length
+    }
   };
 
   const req = https.request(options, (res) => {
@@ -97,13 +97,13 @@ async function translateAutomatically(
 }
 
 function howToUse() {
-  console.log(`
+  console.log(`${color.fg.magenta}
   |   |                     |                                 _) _ |   _ )                                          
   |   |   _ \\ \\ \\  \\   /    __|   _ \\     |   |   __|   _ \\    |   |   _ \\   __ \\           __|  |   |  __ \\    __| 
   ___ |  (   | \\ \\  \\ /     |    (   |    |   | \\__ \\   __/    |   |  (   |  |   | _____| \\__ \\  |   |  |   |  (    
  _|  _| \\___/   \\_/\\_/     \\__| \\___/    \\__,_| ____/ \\___|   _|  _| \\___/  _|  _|        ____/ \\__, | _|  _| \\___| 
                                                                                                 ____/               `);
-  console.log(`${color.fg.black}`);
+  console.log(`${color.fg.white}`);
 
   console.log(`${fontStyle.bold}\n☛  Usage${fontStyle.default}\n`);
   console.log(
@@ -129,7 +129,7 @@ function howToUse() {
     `${color.fg.yellow}  -r${color.fg.default}                   ➤  Use only properties that exist in all languages.`
   );
   console.log(
-    '${color.fg.yellow}  -f <language-file>${color.fg.default}   ➤  Use all properties of a specific language and omit all other languages` properties.'
+    `${color.fg.yellow}  -f <language-file>${color.fg.default}   ➤  Use all properties of a specific language and omit all other language' properties.`
   );
   console.log(
     `${color.fg.yellow}  -t${color.fg.default}                   ➤  Write a "To Do" placeholder string into empty properties.`
@@ -199,6 +199,9 @@ if (params.length > 3) {
     if (cmdLineParseState === 'parameterName') {
       // get parameter
       switch (params[i]) {
+        case '-h':
+          howToUse();
+          process.exit();
         case '-c':
           if (parsedStrategy) {
             exitWithError('You cannot define more than one strategy.');
@@ -278,48 +281,34 @@ console.log();
 let data = {};
 
 // get all JSON files from i18n directory
-fs.readdir(`./${dirPath}`, (error, fileNames) => {
-  if (error) {
-    exitWithError(error);
+const fileNames = fs.readdirSync(`./${dirPath}`);
+
+fileNames.forEach((fileName) => {
+  let properties = fs.readFileSync(`${dirPath}/${fileName}`, 'utf-8');
+
+  // format empty files to fit JSON standard
+  if (properties.trim() === '') {
+    properties = '{}';
   }
 
-  const totalFiles = fileNames.length;
-  let readFiles = 0;
-
-  fileNames.forEach((fileName) => {
-    fs.readFile(`${dirPath}/${fileName}`, 'utf-8', (error, properties) => {
-      if (error) {
-        exitWithError(error);
-      }
-
-      readFiles++;
-
-      // format empty files to fit JSON standard
-      if (properties.trim() === '') {
-        properties = '{}';
-      }
-
-      data[fileName] = JSON.parse(properties);
-
-      if (readFiles === totalFiles) {
-        console.log('[ALL PROPERTIES]', data);
-
-        if (fs.existsSync(`./${outputDirName}`)) {
-          // output directory already exists, so delete it
-          fs.rmSync(`./${outputDirName}`, { recursive: true });
-        }
-
-        // create output directory
-        fs.mkdirSync(`./${outputDirName}`);
-
-        // translate automatically
-        // TODO: only trigger if command line parameter is set
-        // translateAutomatically(
-        //   "The quick brown fox jumps over the lazy cat",
-        //   "en",
-        //   "de"
-        // );
-      }
-    });
-  });
+  // add properties to data object
+  data[fileName] = JSON.parse(properties);
 });
+
+console.log('[ALL PROPERTIES]', data);
+
+if (fs.existsSync(`./${outputDirName}`)) {
+  // output directory already exists, so delete it
+  fs.rmSync(`./${outputDirName}`, { recursive: true });
+}
+
+// create output directory
+fs.mkdirSync(`./${outputDirName}`);
+
+// translate automatically
+// TODO: only trigger if command line parameter is set
+// translateAutomatically(
+//   "The quick brown fox jumps over the lazy cat",
+//   "en",
+//   "de"
+// );
