@@ -12,29 +12,32 @@ However, if your app is continuously developed, new language-specific strings wi
 Using fallback strings is technically a simple solution, but it causes confusion for users if some parts of the app are written in one language and other parts in another language. **To avoid this undesirable effect, i18n-sync helps you to easily organize your language strings at any point of time.**
 
 ## Features
-- merge translation strings from different language files
+- synchronize translation strings from different language files
 - several merge strategies (combine, reduce, language-specific)
 - write a custom string placeholder to inexistent properties
 - automatically translate strings using [LibreTranslate](https://libretranslate.com/)
+- define a custom output directory
 
 ## Usage
+
+### Synchronize language files
 Execute the following command to sync all JSON properties of different language files:
 
 ```
-node i18n-sync.js <i18n-directory>
+i18n-sync <i18n-directory>
 ```
 
 Replace `<i18n-directory>` with the directory name where your language definitions are saved.
 
+### Configuration Options
 You can configure the way _i18n-sync_ works using command line parameters. For instance, if you want to merge your language files using the _reduce_ strategy, execute the following:
 
 ```
-node i18n-sync.js -r
+i18n-sync -r
 ```
 
-A list of all available configuration options can be found in the following section.
+A list of all available configuration options can be found in the table below.
 
-### Configuration Options
 | Option                   | Command Line Parameter | Explanation  |
 | ------------------------ | ---------------------- | ------------ |
 | Combine Strategy         | -c                       | Use all properties of all languages.             |
@@ -45,6 +48,14 @@ A list of all available configuration options can be found in the following sect
 | Individual Placeholder   | -i `<placeholder>`       | Write the provided placeholder string into empty properties. |
 | Automatic Translation    | -a                       | Automatically translates empty property values. Uses the reference string of the first language where the property is provided. |
 | Output Directory Name    | -o `<output-dir-name>`   | Define a custom output directory name.
+<br />
+
+## Help
+To get an overview of all _i18n-sync_ features, execute the following command:
+
+```
+i18n-sync -h
+```
 
 ## License
 This tool uses the [MIT license](https://opensource.org/licenses/MIT). You can freely use and modify this software. Further information can be found in the `LICENSE` file.
