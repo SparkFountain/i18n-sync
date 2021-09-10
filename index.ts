@@ -1,4 +1,8 @@
+#!/usr/bin/env node
+
 // import libraries
+import * as http from 'http'; 
+
 const fs = require('fs');
 const https = require('https');
 
@@ -45,8 +49,8 @@ const color = {
 
 // define bold and default command line styles
 const fontStyle = {
-  default: '\033[0m',
-  bold: '\033[1m'
+  default: '\u{1b}[0m',
+  bold: '\u{1b}[1m'
 };
 
 // combine strategy
@@ -59,9 +63,9 @@ function reduceStrategy() {}
 function fitToLanguageStrategy() {}
 
 async function translateAutomatically(
-  translateString,
-  sourceLanguage,
-  targetLanguage
+  translateString: string,
+  sourceLanguage: string,
+  targetLanguage: string
 ) {
   const data = JSON.stringify({
     q: translateString,
@@ -80,20 +84,20 @@ async function translateAutomatically(
     }
   };
 
-  const req = https.request(options, (res) => {
-    console.log(`statusCode: ${res.statusCode}`);
+  const request = https.request(options, (response: http.ServerResponse) => {
+    console.log(`statusCode: ${response.statusCode}`);
 
-    res.on('data', (d) => {
+    response.on('data', (d) => {
       process.stdout.write(d);
     });
   });
 
-  req.on('error', (error) => {
+  request.on('error', (error: http.RequestListener) => {
     console.error(error);
   });
 
-  req.write(data);
-  req.end();
+  request.write(data);
+  request.end();
 }
 
 function howToUse() {
@@ -158,7 +162,7 @@ function howToUse() {
   );
 }
 
-function exitWithError(message) {
+function exitWithError(message: string) {
   console.error(`\n${color.fg.red}${message}${color.fg.default}`);
   seeHelp();
   process.exit();
@@ -170,145 +174,150 @@ function seeHelp() {
   );
 }
 
-// BEGIN I18N SYNCHRONIZATION
-let params = process.argv; // 1st param: 'node'; 2nd param: 'i18n-sync.js'
+// PERFORM I18N SYNCHRONIZATION
+function i18nSync() {
+  let params = process.argv; // 1st param: 'node'; 2nd param: 'i18n-sync.js'
 
-// check if i18n directory is provided
-if (params === undefined || params.length < 3) {
-  howToUse();
-  process.exit();
-}
+  // check if i18n directory is provided
+  if (params === undefined || params.length < 3) {
+    howToUse();
+    process.exit();
+  }
 
-// get directory path
-let dirPath = params[2];
+  // get directory path
+  let dirPath = params[2];
 
-// get command line parameters
-let strategy = 'combine';
-let parsedStrategy = false;
+  // get command line parameters
+  let strategy = 'combine';
+  let parsedStrategy = false;
 
-let placeholder = 'todo';
-let parsedPlaceholder = false;
+  let placeholder = 'todo';
+  let parsedPlaceholder = false;
 
-let autoTranslate = false;
+  let autoTranslate = false;
 
-let outputDirName = 'output';
+  let outputDirName = 'output';
 
-if (params.length > 3) {
-  let cmdLineParseState = 'parameterName';
-  for (let i = 3; i < params.length; i++) {
-    if (cmdLineParseState === 'parameterName') {
-      // get parameter
-      switch (params[i]) {
-        case '-h':
-          howToUse();
-          process.exit();
-        case '-c':
-          if (parsedStrategy) {
-            exitWithError('You cannot define more than one strategy.');
-          }
-          strategy = 'combine';
-          parsedStrategy = true;
-          break;
-        case '-r':
-          if (parsedStrategy) {
-            exitWithError('You cannot define more than one strategy.');
-          }
-          strategy = 'reduce';
-          parsedStrategy = true;
-          break;
-        case '-f':
-          if (parsedStrategy) {
-            exitWithError('You cannot define more than one strategy.');
-          }
-          cmdLineParseState = 'fitToLanguage';
-          parsedStrategy = true;
-          break;
-        case '-t':
-          if (parsedPlaceholder) {
-            exitWithError('You cannot define more than one placeholder.');
-          }
-          placeholder = 'todo';
-          break;
-        case '-p':
-          if (parsedPlaceholder) {
-            exitWithError('You cannot define more than one placeholder.');
-          }
-          placeholder = 'property';
-          break;
-        case '-i':
-          if (parsedPlaceholder) {
-            exitWithError('You cannot define more than one placeholder.');
-          }
-          cmdLineParseState = 'individualPlaceholder';
-          break;
-        case '-a':
-          autoTranslate = true;
-          break;
-        case '-o':
-          cmdLineParseState = 'outputDirectoryName';
-          break;
-        default:
-          console.error(`Invalid parameter "${params[i]}"`);
-          process.exit();
+  if (params.length > 3) {
+    let cmdLineParseState = 'parameterName';
+    for (let i = 3; i < params.length; i++) {
+      if (cmdLineParseState === 'parameterName') {
+        // get parameter
+        switch (params[i]) {
+          case '-h':
+            howToUse();
+            process.exit();
+          case '-c':
+            if (parsedStrategy) {
+              exitWithError('You cannot define more than one strategy.');
+            }
+            strategy = 'combine';
+            parsedStrategy = true;
+            break;
+          case '-r':
+            if (parsedStrategy) {
+              exitWithError('You cannot define more than one strategy.');
+            }
+            strategy = 'reduce';
+            parsedStrategy = true;
+            break;
+          case '-f':
+            if (parsedStrategy) {
+              exitWithError('You cannot define more than one strategy.');
+            }
+            cmdLineParseState = 'fitToLanguage';
+            parsedStrategy = true;
+            break;
+          case '-t':
+            if (parsedPlaceholder) {
+              exitWithError('You cannot define more than one placeholder.');
+            }
+            placeholder = 'todo';
+            break;
+          case '-p':
+            if (parsedPlaceholder) {
+              exitWithError('You cannot define more than one placeholder.');
+            }
+            placeholder = 'property';
+            break;
+          case '-i':
+            if (parsedPlaceholder) {
+              exitWithError('You cannot define more than one placeholder.');
+            }
+            cmdLineParseState = 'individualPlaceholder';
+            break;
+          case '-a':
+            autoTranslate = true;
+            break;
+          case '-o':
+            cmdLineParseState = 'outputDirectoryName';
+            break;
+          default:
+            console.error(`Invalid parameter "${params[i]}"`);
+            process.exit();
+        }
+      } else if (cmdLineParseState === 'fitToLanguage') {
+        // parse language file name
+        strategy = params[i];
+        cmdLineParseState = 'parameterName';
+      } else if (cmdLineParseState === 'individualPlaceholder') {
+        // parse individual placeholder string
+        placeholder = params[i];
+        cmdLineParseState = 'parameterName';
+      } else if (cmdLineParseState === 'outputDirectoryName') {
+        // parse output directory name
+        outputDirName = params[i];
+        cmdLineParseState = 'parameterName';
       }
-    } else if (cmdLineParseState === 'fitToLanguage') {
-      // parse language file name
-      strategy = params[i];
-      cmdLineParseState = 'parameterName';
-    } else if (cmdLineParseState === 'individualPlaceholder') {
-      // parse individual placeholder string
-      placeholder = params[i];
-      cmdLineParseState = 'parameterName';
-    } else if (cmdLineParseState === 'outputDirectoryName') {
-      // parse output directory name
-      outputDirName = params[i];
-      cmdLineParseState = 'parameterName';
+    }
+
+    if (cmdLineParseState !== 'parameterName') {
+      exitWithError(`Missing argument for parameter '${cmdLineParseState}'`);
     }
   }
 
-  if (cmdLineParseState !== 'parameterName') {
-    exitWithError(`Missing argument for parameter '${cmdLineParseState}'`);
+  // TODO: remove debug logs
+  console.log('[STRATEGY]', strategy);
+  console.log('[PLACEHOLDER]', placeholder);
+  console.log('[AUTO TRANSLATE]', autoTranslate);
+  console.log('[OUTPUT DIR NAME]', outputDirName);
+  console.log();
+
+  let data: any = {};
+
+  // get all JSON files from i18n directory
+  const fileNames = fs.readdirSync(`./${dirPath}`);
+
+  fileNames.forEach((fileName: string) => {
+    let properties = fs.readFileSync(`${dirPath}/${fileName}`, 'utf-8');
+
+    // format empty files to fit JSON standard
+    if (properties.trim() === '') {
+      properties = '{}';
+    }
+
+    // add properties to data object
+    data[fileName] = JSON.parse(properties);
+  });
+
+  console.log('[ALL PROPERTIES]', data);
+
+  if (fs.existsSync(`./${outputDirName}`)) {
+    // output directory already exists, so delete it
+    fs.rmSync(`./${outputDirName}`, { recursive: true });
   }
+
+  // create output directory
+  fs.mkdirSync(`./${outputDirName}`);
+
+  // translate automatically
+  // TODO: only trigger if command line parameter is set
+  // translateAutomatically(
+  //   "The quick brown fox jumps over the lazy cat",
+  //   "en",
+  //   "de"
+  // );
 }
 
-// TODO: remove debug logs
-console.log('[STRATEGY]', strategy);
-console.log('[PLACEHOLDER]', placeholder);
-console.log('[AUTO TRANSLATE]', autoTranslate);
-console.log('[OUTPUT DIR NAME]', outputDirName);
-console.log();
-
-let data = {};
-
-// get all JSON files from i18n directory
-const fileNames = fs.readdirSync(`./${dirPath}`);
-
-fileNames.forEach((fileName) => {
-  let properties = fs.readFileSync(`${dirPath}/${fileName}`, 'utf-8');
-
-  // format empty files to fit JSON standard
-  if (properties.trim() === '') {
-    properties = '{}';
-  }
-
-  // add properties to data object
-  data[fileName] = JSON.parse(properties);
-});
-
-console.log('[ALL PROPERTIES]', data);
-
-if (fs.existsSync(`./${outputDirName}`)) {
-  // output directory already exists, so delete it
-  fs.rmSync(`./${outputDirName}`, { recursive: true });
-}
-
-// create output directory
-fs.mkdirSync(`./${outputDirName}`);
-
-// translate automatically
-// TODO: only trigger if command line parameter is set
-// translateAutomatically(
-//   "The quick brown fox jumps over the lazy cat",
-//   "en",
-//   "de"
-// );
+// export i18nSync function
+module.exports = { i18nSync };
