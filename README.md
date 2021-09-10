@@ -1,8 +1,8 @@
 # i18n-sync
-This tiny tool synchronizes JSON properties for [i18n](https://en.wikipedia.org/wiki/Internationalization_and_localization).
+This tiny tool synchronizes JSON properties in the context of [i18n](https://en.wikipedia.org/wiki/Internationalization_and_localization).
 
-If you have an i18n library that uses JSON files for different languages, you can simply synchronize their 
-properties.
+If you have an i18n library that uses JSON files for different languages, you can simply synchronize their
+property strings. It is even possible to **automatically translate strings** using [LibreTranslate](https://libretranslate.com/) under the hood.
 
 ## Use Cases
 If you have ever worked with internationalization (in short: _i18n_), you will have discovered a common problem: Inconsistency between different languages. Usually, you start developing your application in a default language (e. g. English) and at some point of time in the future, you take the English translation file, duplicate it and rename all properties' values by the correct strings of the new target language.

@@ -2,6 +2,7 @@
 
 // import libraries
 import * as http from 'http';
+import { LanguageProperties } from './src/interface/language-properties.interface';
 
 const fs = require('fs');
 const https = require('https');
@@ -53,14 +54,69 @@ const fontStyle = {
   bold: '\u{1b}[1m',
 };
 
+// store language properties in a data object
+let data: LanguageProperties = {};
+
+function assignProperties(
+  sourceObject: LanguageProperties,
+  targetObject: LanguageProperties,
+) {
+  for (let property in targetObject) {
+    if (sourceObject.hasOwnProperty(property)) {
+      if (typeof sourceObject[property] === 'object') {
+        // recursively assign object properties
+        assignProperties(
+          sourceObject[property] as LanguageProperties,
+          targetObject[property] as LanguageProperties,
+        );
+      } else {
+        // use source object value
+        console.log(`[${property}] ${sourceObject[property]}`);
+      }
+    } else {
+      // fill placeholder value
+      console.log(`[FILL PLACEHOLDER FOR] ${property}`);
+    }
+  }
+
+  console.log('[ASSIGN PROPERTIES]', sourceObject, targetObject);
+}
+
 // combine strategy
-function combineStrategy() {}
+function combineStrategy(): LanguageProperties {
+  let combinedProperties: LanguageProperties = {};
+  let finalProperties: LanguageProperties = {};
+
+  // combine all languages' properties
+  for (const [languageName, languageProperties] of Object.entries(data)) {
+    combinedProperties = { ...combinedProperties, ...languageProperties };
+  }
+
+  // for each language, iterate over all combined properties
+  for (let languageName in data) {
+    assignProperties(
+      data[languageName] as LanguageProperties,
+      combinedProperties,
+    );
+  }
+
+  console.log('[COMBINED PROPERTIES]', combinedProperties);
+  return finalProperties;
+}
 
 // reduce strategy
-function reduceStrategy() {}
+function reduceStrategy() {
+  let finalProperties: LanguageProperties = {};
+
+  return finalProperties;
+}
 
 // fit to language strategy
-function fitToLanguageStrategy() {}
+function fitToLanguageStrategy() {
+  let finalProperties: LanguageProperties = {};
+
+  return finalProperties;
+}
 
 async function translateAutomatically(
   translateString: string,
@@ -174,18 +230,28 @@ function seeHelp() {
   );
 }
 
-// PERFORM I18N SYNCHRONIZATION
+/**
+ * PERFORM I18N SYNCHRONIZATION
+ */
 function i18nSync() {
-  let params = process.argv; // 1st param: 'node'; 2nd param: 'i18n-sync.js'
+  let params = process.argv;
+
+  // remove first (unnecessary) parameters
+  if (params[0].endsWith('node')) {
+    params.shift(); // node call
+    params.shift(); // path to node file
+  } else if (params[0] === 'i18n-sync') {
+    params.shift(); // i18n-sync call
+  }
 
   // check if i18n directory is provided
-  if (params === undefined || params.length < 3) {
+  if (params === undefined || params.length === 0 || params[0] === '-h') {
     howToUse();
     process.exit();
   }
 
   // get directory path
-  let dirPath = params[2];
+  const dirPath = params.shift();
 
   // get command line parameters
   let strategy = 'combine';
@@ -198,15 +264,12 @@ function i18nSync() {
 
   let outputDirName = 'output';
 
-  if (params.length > 3) {
+  if (params.length > 0) {
     let cmdLineParseState = 'parameterName';
-    for (let i = 3; i < params.length; i++) {
+    for (let i = 0; i < params.length; i++) {
       if (cmdLineParseState === 'parameterName') {
         // get parameter
         switch (params[i]) {
-          case '-h':
-            howToUse();
-            process.exit();
           case '-c':
             if (parsedStrategy) {
               exitWithError('You cannot define more than one strategy.');
@@ -283,13 +346,12 @@ function i18nSync() {
   console.log('[OUTPUT DIR NAME]', outputDirName);
   console.log();
 
-  let data: any = {};
-
   // get all JSON files from i18n directory
   const fileNames = fs.readdirSync(`./${dirPath}`);
 
+  // read all file contents
   fileNames.forEach((fileName: string) => {
-    let properties = fs.readFileSync(`${dirPath}/${fileName}`, 'utf-8');
+    let properties: string = fs.readFileSync(`${dirPath}/${fileName}`, 'utf-8');
 
     // format empty files to fit JSON standard
     if (properties.trim() === '') {
@@ -302,13 +364,23 @@ function i18nSync() {
 
   console.log('[ALL PROPERTIES]', data);
 
+  // delete specified output directory in case it already exists
   if (fs.existsSync(`./${outputDirName}`)) {
-    // output directory already exists, so delete it
     fs.rmSync(`./${outputDirName}`, { recursive: true });
   }
 
   // create output directory
   fs.mkdirSync(`./${outputDirName}`);
+
+  // apply merge strategy
+  let resultData: LanguageProperties;
+  if (strategy === 'combine') {
+    resultData = combineStrategy();
+  } else if (strategy === 'reduce') {
+    resultData = reduceStrategy();
+  } else {
+    resultData = fitToLanguageStrategy();
+  }
 
   // translate automatically
   // TODO: only trigger if command line parameter is set
@@ -319,5 +391,5 @@ function i18nSync() {
   // );
 }
 
-// export i18nSync function
-module.exports = { i18nSync };
+// Execute the synchronization function
+i18nSync();

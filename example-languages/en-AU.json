@@ -1,6 +1,7 @@
 {
   "greeting": {
-    "welcome": "Welcome!",
-    "goodbye": "Goodbye!"
-  }
+    "welcome": "G'day mate!",
+    "goodbye": "Hooroo!"
+  },
+  "location": "Down Under"
 }
