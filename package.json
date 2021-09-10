@@ -2,12 +2,12 @@
   "name": "@sparkfountain/i18n-sync",
   "version": "0.0.1",
   "description": "A tiny tool to easily synchronize i18n language files",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "bin": {
-    "i1nsync": "dist/index.js"
+    "i18n-sync": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc --project ./ --outDir dist",
+    "build": "tsc --project ./",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -16,8 +16,9 @@
   },
   "keywords": [
     "i18n",
-    "language",
-    "i18n-sync"
+    "sync",
+    "i18n-sync",
+    "locale"
   ],
   "author": "Spark Fountain",
   "license": "MIT",

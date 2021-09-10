@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // import libraries
-import * as http from 'http'; 
+import * as http from 'http';
 
 const fs = require('fs');
 const https = require('https');
@@ -25,7 +25,7 @@ const color = {
     brightBlue: '\x1b[94m',
     brightMagenta: '\x1b[95m',
     brightCyan: '\x1b[96m',
-    brightWhite: '\x1b[97m'
+    brightWhite: '\x1b[97m',
   },
   bg: {
     black: '\x1b[40m',
@@ -43,14 +43,14 @@ const color = {
     brightBlue: '\x1b[104m',
     brightMagenta: '\x1b[105m',
     brightCyan: '\x1b[106m',
-    brightWhite: '\x1b[107m'
-  }
+    brightWhite: '\x1b[107m',
+  },
 };
 
 // define bold and default command line styles
 const fontStyle = {
   default: '\u{1b}[0m',
-  bold: '\u{1b}[1m'
+  bold: '\u{1b}[1m',
 };
 
 // combine strategy
@@ -65,12 +65,12 @@ function fitToLanguageStrategy() {}
 async function translateAutomatically(
   translateString: string,
   sourceLanguage: string,
-  targetLanguage: string
+  targetLanguage: string,
 ) {
   const data = JSON.stringify({
     q: translateString,
     source: sourceLanguage,
-    target: targetLanguage
+    target: targetLanguage,
   });
 
   const options = {
@@ -80,8 +80,8 @@ async function translateAutomatically(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Content-Length': data.length
-    }
+      'Content-Length': data.length,
+    },
   };
 
   const request = https.request(options, (response: http.ServerResponse) => {
@@ -111,54 +111,54 @@ function howToUse() {
 
   console.log(`${fontStyle.bold}\n☛  Usage${fontStyle.default}\n`);
   console.log(
-    `Execute the following command to sync all JSON properties of different language files:\n`
+    `Execute the following command to sync all JSON properties of different language files:\n`,
   );
   console.log(
-    `  ${color.fg.green}> ${color.fg.default}${color.fg.yellow}node i18n-sync.js <i18n-directory> [parameters]${color.fg.default}\n`
+    `  ${color.fg.green}> ${color.fg.default}${color.fg.yellow}node i18n-sync.js <i18n-directory> [parameters]${color.fg.default}\n`,
   );
   console.log(
-    `Replace ${color.fg.yellow}<i18n-directory>${color.fg.default} with the directory name where your language definitions are saved.\n`
+    `Replace ${color.fg.yellow}<i18n-directory>${color.fg.default} with the directory name where your language definitions are saved.\n`,
   );
   console.log(
-    `You can configure the way ${color.fg.magenta}i18n-sync${color.fg.default} works using (optional) command line parameters.\n\n`
-  );
-
-  console.log(
-    `${fontStyle.bold}☛  Command line parameters\n${fontStyle.default}`
-  );
-  console.log(
-    `${color.fg.yellow}  -c${color.fg.default}                   ➤  Use all properties of all languages.`
-  );
-  console.log(
-    `${color.fg.yellow}  -r${color.fg.default}                   ➤  Use only properties that exist in all languages.`
-  );
-  console.log(
-    `${color.fg.yellow}  -f <language-file>${color.fg.default}   ➤  Use all properties of a specific language and omit all other language' properties.`
-  );
-  console.log(
-    `${color.fg.yellow}  -t${color.fg.default}                   ➤  Write a "To Do" placeholder string into empty properties.`
-  );
-  console.log(
-    `${color.fg.yellow}  -p${color.fg.default}                   ➤  Write a placeholder string into empty properties that uses the name of the current property.`
-  );
-  console.log(
-    `${color.fg.yellow}  -i <placeholder>${color.fg.default}     ➤  Write the provided placeholder string into empty properties.`
-  );
-  console.log(
-    `${color.fg.yellow}  -a${color.fg.default}                   ➤  Automatically translates empty property values using LibreTranslate.`
-  );
-  console.log(
-    `${color.fg.yellow}  -o <output-dir-name>${color.fg.default} ➤  Define a custom output directory name.\n`
+    `You can configure the way ${color.fg.magenta}i18n-sync${color.fg.default} works using (optional) command line parameters.\n\n`,
   );
 
   console.log(
-    `\x1b[4mYou can only provide one parameter of each set:${color.fg.default}\n`
+    `${fontStyle.bold}☛  Command line parameters\n${fontStyle.default}`,
   );
   console.log(
-    `${color.fg.green}STRATEGY:${color.fg.default}     EITHER  ${color.fg.yellow}-c${color.fg.default}  OR  ${color.fg.yellow}-r${color.fg.default}  OR  ${color.fg.yellow}-f <language-file>${color.fg.default}`
+    `${color.fg.yellow}  -c${color.fg.default}                   ➤  Use all properties of all languages.`,
   );
   console.log(
-    `${color.fg.green}PLACEHOLDER:${color.fg.default}  EITHER  ${color.fg.yellow}-t${color.fg.default}  OR  ${color.fg.yellow}-p${color.fg.default}  OR  ${color.fg.yellow}-i <placeholder>${color.fg.default}\n`
+    `${color.fg.yellow}  -r${color.fg.default}                   ➤  Use only properties that exist in all languages.`,
+  );
+  console.log(
+    `${color.fg.yellow}  -f <language-file>${color.fg.default}   ➤  Use all properties of a specific language and omit all other language' properties.`,
+  );
+  console.log(
+    `${color.fg.yellow}  -t${color.fg.default}                   ➤  Write a "To Do" placeholder string into empty properties.`,
+  );
+  console.log(
+    `${color.fg.yellow}  -p${color.fg.default}                   ➤  Write a placeholder string into empty properties that uses the name of the current property.`,
+  );
+  console.log(
+    `${color.fg.yellow}  -i <placeholder>${color.fg.default}     ➤  Write the provided placeholder string into empty properties.`,
+  );
+  console.log(
+    `${color.fg.yellow}  -a${color.fg.default}                   ➤  Automatically translates empty property values using LibreTranslate.`,
+  );
+  console.log(
+    `${color.fg.yellow}  -o <output-dir-name>${color.fg.default} ➤  Define a custom output directory name.\n`,
+  );
+
+  console.log(
+    `\x1b[4mYou can only provide one parameter of each set:${color.fg.default}\n`,
+  );
+  console.log(
+    `${color.fg.green}STRATEGY:${color.fg.default}     EITHER  ${color.fg.yellow}-c${color.fg.default}  OR  ${color.fg.yellow}-r${color.fg.default}  OR  ${color.fg.yellow}-f <language-file>${color.fg.default}`,
+  );
+  console.log(
+    `${color.fg.green}PLACEHOLDER:${color.fg.default}  EITHER  ${color.fg.yellow}-t${color.fg.default}  OR  ${color.fg.yellow}-p${color.fg.default}  OR  ${color.fg.yellow}-i <placeholder>${color.fg.default}\n`,
   );
 }
 
@@ -170,7 +170,7 @@ function exitWithError(message: string) {
 
 function seeHelp() {
   console.error(
-    `\n${color.fg.magenta}For help, execute:\n${color.fg.green}> ${color.fg.yellow}node i18n-sync.js -h${color.fg.default}`
+    `\n${color.fg.magenta}For help, execute:\n${color.fg.green}> ${color.fg.yellow}node i18n-sync.js -h${color.fg.default}`,
   );
 }
 
