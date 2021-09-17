@@ -1,3 +1,3 @@
 export interface LanguageProperties {
-  [key: string]: object;
+  [key: string]: LanguageProperties | string;
 }

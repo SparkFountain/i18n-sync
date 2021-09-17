@@ -6,6 +6,7 @@ import { LanguageProperties } from './src/interface/language-properties.interfac
 
 const fs = require('fs');
 const https = require('https');
+const _ = require('lodash');
 
 // define command line colors
 const color = {
@@ -71,15 +72,15 @@ function assignProperties(
         );
       } else {
         // use source object value
-        console.log(`[${property}] ${sourceObject[property]}`);
+        // console.log(`[${property}] ${sourceObject[property]}`);
       }
     } else {
       // fill placeholder value
-      console.log(`[FILL PLACEHOLDER FOR] ${property}`);
+      // console.log(`[FILL PLACEHOLDER FOR] ${property}`);
     }
   }
 
-  console.log('[ASSIGN PROPERTIES]', sourceObject, targetObject);
+  // console.log('[ASSIGN PROPERTIES]', sourceObject, targetObject);
 }
 
 // combine strategy
@@ -89,15 +90,15 @@ function combineStrategy(): LanguageProperties {
 
   // combine all languages' properties
   for (const [languageName, languageProperties] of Object.entries(data)) {
-    combinedProperties = { ...combinedProperties, ...languageProperties };
+    // TODO: does not work for sub-levels
+    combinedProperties = _.merge(combinedProperties, languageProperties);
   }
+
+  console.log('[_ MERGE]', combinedProperties);
 
   // for each language, iterate over all combined properties
   for (let languageName in data) {
-    assignProperties(
-      data[languageName] as LanguageProperties,
-      combinedProperties,
-    );
+    console.log('[LANGUAGE NAME]', languageName);
   }
 
   console.log('[COMBINED PROPERTIES]', combinedProperties);
@@ -112,7 +113,7 @@ function reduceStrategy() {
 }
 
 // fit to language strategy
-function fitToLanguageStrategy() {
+function fitToLanguageStrategy(): LanguageProperties {
   let finalProperties: LanguageProperties = {};
 
   return finalProperties;
@@ -170,7 +171,7 @@ function howToUse() {
     `Execute the following command to sync all JSON properties of different language files:\n`,
   );
   console.log(
-    `  ${color.fg.green}> ${color.fg.default}${color.fg.yellow}node i18n-sync.js <i18n-directory> [parameters]${color.fg.default}\n`,
+    `  ${color.fg.green}> ${color.fg.default}${color.fg.yellow}i18n-sync <i18n-directory> [parameters]${color.fg.default}\n`,
   );
   console.log(
     `Replace ${color.fg.yellow}<i18n-directory>${color.fg.default} with the directory name where your language definitions are saved.\n`,
@@ -343,8 +344,7 @@ function i18nSync() {
   console.log('[STRATEGY]', strategy);
   console.log('[PLACEHOLDER]', placeholder);
   console.log('[AUTO TRANSLATE]', autoTranslate);
-  console.log('[OUTPUT DIR NAME]', outputDirName);
-  console.log();
+  console.log('[OUTPUT DIR NAME]\n\n', outputDirName);
 
   // get all JSON files from i18n directory
   const fileNames = fs.readdirSync(`./${dirPath}`);
