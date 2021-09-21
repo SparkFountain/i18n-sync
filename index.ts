@@ -3,6 +3,7 @@
 // import libraries
 import * as http from 'http';
 import { LanguageProperties } from './src/interface/language-properties.interface';
+import { Stack } from './src/interface/stack.interface';
 
 const fs = require('fs');
 const https = require('https');
@@ -57,6 +58,17 @@ const fontStyle = {
 
 // store language properties in a data object
 let data: LanguageProperties = {};
+
+// store configuration parameters
+let strategy = 'combine';
+let parsedStrategy = false;
+
+let placeholder = 'todo';
+let parsedPlaceholder = false;
+
+let autoTranslate = false;
+
+let outputDirName = 'output';
 
 function assignProperties(
   sourceObject: LanguageProperties,
@@ -114,8 +126,74 @@ function reduceStrategy() {
 
 // fit to language strategy
 function fitToLanguageStrategy(): LanguageProperties {
-  let finalProperties: LanguageProperties = {};
+  // check if given language exists
+  if (!data.hasOwnProperty(strategy)) {
+    exitWithError(`The language file '${strategy}' does not exist`);
+  }
 
+  let originalProperties: LanguageProperties = data[
+    strategy
+  ] as LanguageProperties;
+  let finalProperties: LanguageProperties = {};
+  let innerStack: Stack = {
+    properties: [],
+    size: 0,
+  };
+
+  let languageKeys = Object.keys(data);
+  languageKeys.forEach(
+    (languageKey: string) =>
+      (finalProperties[languageKey] = _.cloneDeepWith(
+        originalProperties,
+        (value: string, key: string | undefined, object: any, stack: any) => {
+          if (stack !== undefined) {
+            let stackData = stack['__data__'];
+            if (Number(stackData.size) > innerStack.size) {
+              innerStack.properties.push(key as string);
+              innerStack.size++;
+            } else if (Number(stackData.size) < innerStack.size) {
+              innerStack.properties.pop();
+              innerStack.size--;
+            }
+
+            if (!_.isObject(value)) {
+              // use correct language string
+              let currentObject: any = data[languageKey];
+              innerStack.properties.forEach((property: string) => {
+                console.log('[FOR EACH]', property);
+
+                if (currentObject.hasOwnProperty(property)) {
+                  currentObject = currentObject[property];
+                } else {
+                  // use placeholder
+                  if (placeholder === 'todo') {
+                    currentObject = 'todo';
+                    return;
+                  } else if (placeholder === 'property') {
+                    currentObject = property;
+                    return;
+                  } else {
+                    currentObject = translateAutomatically(
+                      (data[languageKey] as LanguageProperties)[
+                        innerStack.properties.join('.')
+                      ] as string,
+                      strategy,
+                      languageKey,
+                    );
+                    return;
+                  }
+                }
+              });
+
+              console.log('[CURRENT PROPERTY]', currentObject);
+              return currentObject;
+            }
+          }
+        },
+      )),
+  );
+
+  console.log('[FINAL PROPERTIES]', finalProperties);
   return finalProperties;
 }
 
@@ -255,16 +333,6 @@ function i18nSync() {
   const dirPath = params.shift();
 
   // get command line parameters
-  let strategy = 'combine';
-  let parsedStrategy = false;
-
-  let placeholder = 'todo';
-  let parsedPlaceholder = false;
-
-  let autoTranslate = false;
-
-  let outputDirName = 'output';
-
   if (params.length > 0) {
     let cmdLineParseState = 'parameterName';
     for (let i = 0; i < params.length; i++) {
@@ -362,7 +430,7 @@ function i18nSync() {
     data[fileName] = JSON.parse(properties);
   });
 
-  console.log('[ALL PROPERTIES]', data);
+  // console.log('[ALL PROPERTIES]', data);
 
   // delete specified output directory in case it already exists
   if (fs.existsSync(`./${outputDirName}`)) {
