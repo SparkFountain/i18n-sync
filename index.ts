@@ -149,10 +149,12 @@ function fitToLanguageStrategy(): LanguageProperties {
           if (stack !== undefined) {
             let stackData = stack['__data__'];
             if (Number(stackData.size) > innerStack.size) {
+              console.log('[PUSH ON STACK]', key);
               innerStack.properties.push(key as string);
               innerStack.size++;
             } else if (Number(stackData.size) < innerStack.size) {
-              innerStack.properties.pop();
+              let popped = innerStack.properties.pop();
+              console.log('[POPPED FROM STACK]', popped);
               innerStack.size--;
             }
 
