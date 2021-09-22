@@ -135,68 +135,78 @@ function fitToLanguageStrategy(): LanguageProperties {
     strategy
   ] as LanguageProperties;
   let finalProperties: LanguageProperties = {};
-  let innerStack: Stack = {
-    properties: [],
-    size: 0,
-  };
 
-  let languageKeys = Object.keys(data);
-  languageKeys.forEach(
-    (languageKey: string) =>
-      (finalProperties[languageKey] = _.cloneDeepWith(
-        originalProperties,
-        (value: string, key: string | undefined, object: any, stack: any) => {
-          if (stack !== undefined) {
-            let stackData = stack['__data__'];
-            if (Number(stackData.size) > innerStack.size) {
-              console.log('[PUSH ON STACK]', key);
-              innerStack.properties.push(key as string);
-              innerStack.size++;
-            } else if (Number(stackData.size) < innerStack.size) {
-              let popped = innerStack.properties.pop();
-              console.log('[POPPED FROM STACK]', popped);
-              innerStack.size--;
-            }
-
-            if (!_.isObject(value)) {
-              // use correct language string
-              let currentObject: any = data[languageKey];
-              innerStack.properties.forEach((property: string) => {
-                console.log('[FOR EACH]', property);
-
-                if (currentObject.hasOwnProperty(property)) {
-                  currentObject = currentObject[property];
-                } else {
-                  // use placeholder
-                  if (placeholder === 'todo') {
-                    currentObject = 'todo';
-                    return;
-                  } else if (placeholder === 'property') {
-                    currentObject = property;
-                    return;
-                  } else {
-                    currentObject = translateAutomatically(
-                      (data[languageKey] as LanguageProperties)[
-                        innerStack.properties.join('.')
-                      ] as string,
-                      strategy,
-                      languageKey,
-                    );
-                    return;
-                  }
-                }
-              });
-
-              console.log('[CURRENT PROPERTY]', currentObject);
-              return currentObject;
-            }
-          }
-        },
-      )),
+  /* TODO: BEGIN DEBUGGING */
+  _.cloneDeepWith(
+    originalProperties,
+    (value: string, key: string | undefined, object: any, stack: Stack) => {
+      if (key !== undefined) {
+        console.log(`[${key}] ${value}`);
+        console.log(stack['__data__']['__data__']);
+        console.log('\n\n\n');
+      }
+    },
   );
+  process.exit();
+  /* TODO: END DEBUGGING */
 
-  console.log('[FINAL PROPERTIES]', finalProperties);
-  return finalProperties;
+  // let languageKeys = Object.keys(data);
+  // languageKeys.forEach(
+  //   (languageKey: string) =>
+  //     (finalProperties[languageKey] = _.cloneDeepWith(
+  //       originalProperties,
+  //       (value: string, key: string | undefined, object: any, stack: any) => {
+  //         if (stack !== undefined) {
+  //           let stackData = stack['__data__'];
+  //           if (Number(stackData.size) > innerStack.size) {
+  //             // console.log('[PUSH ON STACK]', key);
+  //             innerStack.properties.push(key as string);
+  //             innerStack.size++;
+  //           } else if (Number(stackData.size) < innerStack.size) {
+  //             let popped = innerStack.properties.pop();
+  //             // console.log('[POPPED FROM STACK]', popped);
+  //             innerStack.size--;
+  //           }
+
+  //           if (!_.isObject(value)) {
+  //             // use correct language string
+  //             let currentObject: any = data[languageKey];
+  //             innerStack.properties.forEach((property: string) => {
+  //               // console.log('[FOR EACH]', property);
+
+  //               if (currentObject.hasOwnProperty(property)) {
+  //                 currentObject = currentObject[property];
+  //               } else {
+  //                 // use placeholder
+  //                 if (placeholder === 'todo') {
+  //                   currentObject = 'todo';
+  //                   return;
+  //                 } else if (placeholder === 'property') {
+  //                   currentObject = property;
+  //                   return;
+  //                 } else {
+  //                   currentObject = translateAutomatically(
+  //                     (data[languageKey] as LanguageProperties)[
+  //                       innerStack.properties.join('.')
+  //                     ] as string,
+  //                     strategy,
+  //                     languageKey,
+  //                   );
+  //                   return;
+  //                 }
+  //               }
+  //             });
+
+  //             // console.log('[CURRENT PROPERTY]', currentObject);
+  //             return currentObject;
+  //           }
+  //         }
+  //       },
+  //     )),
+  // );
+
+  // console.log('[FINAL PROPERTIES]', finalProperties);
+  // return finalProperties;
 }
 
 async function translateAutomatically(
@@ -414,7 +424,7 @@ function i18nSync() {
   console.log('[STRATEGY]', strategy);
   console.log('[PLACEHOLDER]', placeholder);
   console.log('[AUTO TRANSLATE]', autoTranslate);
-  console.log('[OUTPUT DIR NAME]\n\n', outputDirName);
+  console.log(`[OUTPUT DIR NAME] ${outputDirName}\n\n`);
 
   // get all JSON files from i18n directory
   const fileNames = fs.readdirSync(`./${dirPath}`);

@@ -2,5 +2,14 @@
   "greeting": {
     "welcome": "Welcome!",
     "goodbye": "Goodbye!"
+  },
+  "a": {
+    "very": {
+      "deeply": {
+        "nested": {
+          "object": "chain"
+        }
+      }
+    }
   }
 }
